@@ -1,0 +1,7 @@
+{
+    "bg": "url('/sample-wallpapers/1.png')",
+    "fg": "#000",
+    "name": "Liquid Glass",
+    "author": "WebOS",
+    "file": "webosLiquidGlass"
+}

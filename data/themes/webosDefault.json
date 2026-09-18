@@ -1,0 +1,32 @@
+{
+  "name": "WebOS Default",
+  "author": "WebOS",
+  "file": "webosDefault",
+  "type": "basic",
+  "defaultScheme": "light",
+  "schemes": {
+    "dark": {
+      "bg": "/sample-wallpapers/2 (2).png",
+      "default_fg": "#fff",
+      "panel_bg": "rgba(30, 30, 30, .45)",
+      "panel_fg": "rgba(230, 230, 230, .9)",
+      "accent": "#00f",
+      "window_bg": "rgba(30, 30, 30, 0.45)",
+      "window_fg": "#fff",
+      "panel_backdrop": "blur(10px)"
+    },
+    "light": {
+      "bg": "url('/sample-wallpapers/2 (2).png')",
+      "default_fg": "#000",
+      "panel_bg": "rgba(255, 255, 255, 0.3)",
+      "panel_fg": "rgb(255, 255, 255)",
+      "accent": "#00f",
+      "window_bg": "rgba(255, 255, 255, 0.7)",
+      "window_fg": "#000",
+      "panel_backdrop": "blur(10px)"
+    }
+  },
+  "assets": {
+    "wallpapers": ["/sample-wallpapers/1.png"]
+  }
+}
