@@ -2,10 +2,9 @@ node_modules/
 .next/
 out/
 build/
-vercel/
-.vercel/
-.env*.local
+.vercel
+.env*
+npm-debug.log*
+.DS_Store
 *.tsbuildinfo
 next-env.d.ts
-.DS_Store
-npm-debug.log*
