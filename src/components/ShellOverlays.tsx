@@ -1,7 +1,64 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useOS } from '@/os/store'
+import { getAppManifest } from '@/os/apps'
+
+export function MinimizedPill() {
+  const minimizedList = useOS((s) => s.minimizedList)
+  const windows = useOS((s) => s.windows)
+  const restoreMinimized = useOS((s) => s.restoreMinimized)
+  const [expanded, setExpanded] = useState(false)
+
+  const minimized = minimizedList
+    .map((m) => windows.find((w) => w.id === m.id))
+    .filter((w): w is NonNullable<typeof w> => Boolean(w))
+
+  if (minimized.length === 0) return null
+
+  return (
+    <div
+      id="minimizedWindowsPill"
+      className={`fixed top-[42px] left-[7px] z-[9999] cursor-pointer transition-all duration-300 bg-[var(--panel-bg)] shadow-[0px_0px_15px_#1113] ${
+        expanded ? 'w-[40%] h-fit max-w-[400px]' : 'w-[60px] h-[23px] flex items-center justify-center'
+      }`}
+      style={{ borderRadius: '1.3rem', mixBlendMode: 'hard-light', backdropFilter: expanded ? 'blur(12px)' : 'none' }}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+      {!expanded && (
+        <div className="flex items-center justify-center text-[var(--panel-fg)] gap-0.5 select-none">
+          <p>&bullet;</p>
+          <p>&bullet;</p>
+          <p>&bullet;</p>
+        </div>
+      )}
+      {expanded && (
+        <div className="w-full h-full p-3 overflow-auto flex-col space-y-2">
+          <p className="text-sm font-semibold text-[var(--panel-fg)] select-none">Minimized Windows</p>
+          <div className="w-full flex flex-col gap-1.5">
+            {minimized.map((w) => {
+              const app = getAppManifest(w.appKey)
+              return (
+                <button
+                  key={w.id}
+                  onClick={() => {
+                    restoreMinimized(w.id)
+                    setExpanded(false)
+                  }}
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-[var(--surface-bg)] transition-colors text-[var(--panel-fg)]"
+                >
+                  <i className={`${app?.icon || w.icon || 'bi-app-indicator'} text-lg`} />
+                  <span className="text-sm font-medium truncate">{app?.name || w.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function Toasts() {
   const toasts = useOS((s) => s.toasts)
@@ -85,26 +142,59 @@ export function GlobalContextMenu() {
 
   return (
     <div
-      className="os-context-menu os-glass fixed rounded-xl shadow-2xl border border-white/10 py-1.5 min-w-[180px] z-[70]"
-      style={{ left: Math.min(cm.x, window.innerWidth - 200), top: Math.min(cm.y, window.innerHeight - count * 34 - 16) }}
+      className="os-context-menu fixed w-[260px] overflow-clip h-fit bg-[var(--window-bg)] text-[var(--window-fg)] backdrop-blur-md rounded-[.7rem] z-[99999] divide-[#aaa] divide-y-[1px] shadow-[0px_0px_15px_#1113] *:cursor-default *:select-none"
+      style={{ left: Math.min(cm.x, window.innerWidth - 260), top: Math.min(cm.y, window.innerHeight - count * 34 - 60) }}
       onClick={(e) => e.stopPropagation()}
       onMouseLeave={closeMenus}
     >
-      {cm.quick?.copy && <CMItem icon="bi-copy" label="Copy" onClick={() => { void navigator.clipboard.writeText(selectedText()); closeMenus() }} />}
-      {cm.quick?.cut && <CMItem icon="bi-scissors" label="Cut" onClick={() => { closeMenus() }} />}
-      {cm.quick?.paste && <CMItem icon="bi-clipboard" label="Paste" onClick={() => { closeMenus() }} />}
-      {cm.actions.map((a) => (
-        <CMItem
-          key={a.label}
-          icon={a.icon}
-          label={a.label}
-          onClick={() => {
-            a.run()
-            closeMenus()
-          }}
-          shortcut={a.shortcut}
-        />
-      ))}
+      {cm.quick && (cm.quick.copy || cm.quick.cut || cm.quick.paste) && (
+        <div className="flex items-center space-x-2 px-2 py-2">
+          {cm.quick.copy && (
+            <button
+              className="context-menu-quick-action hover:bg-[var(--surface-hover)] w-8 h-8 rounded-[.5rem] text-lg transition-colors duration-200"
+              title="Copy"
+              onClick={() => {
+                void navigator.clipboard.writeText(selectedText())
+                closeMenus()
+              }}
+            >
+              <i className="bi-copy" />
+            </button>
+          )}
+          {cm.quick.cut && (
+            <button
+              className="context-menu-quick-action hover:bg-[var(--surface-hover)] w-8 h-8 rounded-[.5rem] text-lg transition-colors duration-200"
+              title="Cut"
+              onClick={() => closeMenus()}
+            >
+              <i className="bi-scissors" />
+            </button>
+          )}
+          {cm.quick.paste && (
+            <button
+              className="context-menu-quick-action hover:bg-[var(--surface-hover)] w-8 h-8 rounded-[.5rem] text-lg transition-colors duration-200"
+              title="Paste"
+              onClick={() => closeMenus()}
+            >
+              <i className="bi-clipboard" />
+            </button>
+          )}
+        </div>
+      )}
+      <div className="py-1">
+        {cm.actions.map((a) => (
+          <CMItem
+            key={a.label}
+            icon={a.icon}
+            label={a.label}
+            onClick={() => {
+              a.run()
+              closeMenus()
+            }}
+            shortcut={a.shortcut}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -117,10 +207,10 @@ export function openContextAt(x: number, y: number, actions: CMAction[], quick?:
 
 function CMItem({ icon, label, shortcut, onClick }: { icon?: string; label: string; shortcut?: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-2.5 px-3 py-1.5 text-sm hover:bg-[var(--surface-bg)] transition-colors">
-      {icon && <i className={`${icon} text-sm opacity-70`} />}
-      <span className="flex-1 text-left">{label}</span>
-      {shortcut && <span className="text-[11px] opacity-40">{shortcut}</span>}
+    <button onClick={onClick} className="w-full flex items-center px-3 py-2 hover:bg-[var(--surface-hover)] transition-colors duration-200 text-[var(--window-fg)]">
+      {icon && <i className={`${icon} mr-2 text-sm opacity-70`} />}
+      <p className="text-[14px] font-semibold">{label}</p>
+      {shortcut && <p className="text-sm ml-auto text-neutral-400">{shortcut}</p>}
     </button>
   )
 }

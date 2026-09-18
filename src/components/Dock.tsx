@@ -6,32 +6,46 @@ import { useOS } from '@/os/store'
 export default function Dock() {
   const user = useOS((s) => s.user)
   const openAppByKey = useOS((s) => s.openAppByKey)
-  const windows = useOS((s) => s.windows)
+  const dockHidden = useOS((s) => s.dockHidden)
+  const setDockHidden = useOS((s) => s.setDockHidden)
 
   const installed = user?.installedApps || []
-  const apps = [
-    ...APP_MANIFEST.filter((a) => !a.system && installed.includes(a.key)),
-    ...SYSTEM_APPS.filter((a) => a.key === 'settings' || a.key === 'store' || a.key === 'taskmanager'),
-  ]
+  const apps = APP_MANIFEST.filter((a) => !a.system && installed.includes(a.key))
+  const system = SYSTEM_APPS.filter((a) => a.key === 'taskmanager' || a.key === 'store' || a.key === 'settings')
 
-  const running = (key: string) => windows.some((w) => w.appKey === key)
-  const minimized = (key: string) => windows.some((w) => w.appKey === key && w.minimized)
+  const iconCls =
+    'icon bg-[var(--panel-bg)] text-[var(--dock-icon-color)] hover:scale-[1.1] backdrop-blur-md transition-all duration-200 w-12 h-12 flex items-center justify-center rounded-full shadow-[0px_0px_7px_#1114] cursor-pointer'
 
   return (
-    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-40">
-      <div className="os-dock flex items-end gap-1 rounded-2xl px-2.5 py-2 shadow-2xl">
-        {apps.map((app) => (
-          <button key={app.key} onClick={() => openAppByKey(app.key)} className={`os-dock-icon relative flex flex-col items-center w-12 py-1 rounded-xl ${running(app.key) && !minimized(app.key) ? 'bg-[var(--surface-bg)]/70' : ''}`} title={app.name}>
-            <span className="w-9 h-9 rounded-xl bg-[var(--surface-bg)] text-[var(--accent)] flex items-center justify-center text-xl shadow-sm">
-              <i className={app.icon} />
-            </span>
-            <span className="os-dock-label absolute top-[-26px] left-1/2 w-max max-w-[140px] rounded-lg bg-[var(--panel-bg)] text-[var(--panel-fg)] backdrop-blur px-2 py-1 text-xs font-medium shadow-lg">
-              {app.name}
-            </span>
-            {running(app.key) && <span className={`os-dock-running ${minimized(app.key) ? 'opacity-40' : ''}`} />}
-          </button>
-        ))}
+    <>
+      {dockHidden && (
+        <div
+          className="w-1/4 max-w-[600px] h-[12px] bg-[var(--panel-bg)] fixed bottom-[7px] left-1/2 -translate-x-1/2 rounded-full cursor-pointer hover:w-[30%] hover:max-w-[800px] hover:-translate-y-1 hover:bg-[var(--surface-bg)] transition-all duration-300 z-[99998] shadow-[0px_0px_15px_#1113]"
+          onClick={() => setDockHidden(false)}
+          title="Show dock"
+        />
+      )}
+      <div
+        className={`os-dock-wrap w-fit fixed bottom-2 left-1/2 -translate-x-1/2 space-x-2 flex z-[99998] transition-transform duration-[350ms] ease-[cubic-bezier(.2,.8,.2,1)] ${
+          dockHidden ? 'translate-y-[120px]' : 'translate-y-0'
+        }`}
+      >
+        <div className="w-fit px-3 h-[70px] transition-all duration-300 mx-auto bottom-2 rounded-full flex justify-center items-center flex-row space-x-3 z-[9998] shadow-[0px_0px_20px_#1113] backdrop-blur-md bg-[var(--panel-bg)]">
+          {apps.map((app) => (
+            <button key={app.key} className={iconCls} title={app.name} onClick={() => openAppByKey(app.key)}>
+              <i className={`${app.icon} text-2xl`} />
+            </button>
+          ))}
+        </div>
+
+        <div className="w-fit px-3 h-[70px] transition-all duration-300 mx-auto bottom-2 rounded-full flex justify-center items-center flex-row space-x-3 z-[9998] shadow-[0px_0px_20px_#1113] backdrop-blur-md bg-[var(--panel-bg)]">
+          {system.map((app) => (
+            <button key={app.key} className={iconCls} title={app.name} onClick={() => openAppByKey(app.key)}>
+              <i className={`${app.icon} text-2xl`} />
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }

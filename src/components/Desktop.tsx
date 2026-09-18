@@ -7,15 +7,13 @@ import { openContextAt } from '@/components/ShellOverlays'
 import Window from '@/components/Window'
 import Dock from '@/components/Dock'
 import Topbar from '@/components/Topbar'
-import { Toasts, Alerts, GlobalContextMenu } from '@/components/ShellOverlays'
+import { Toasts, Alerts, GlobalContextMenu, MinimizedPill } from '@/components/ShellOverlays'
 
 export default function Desktop() {
   const user = useOS((s) => s.user)
   const windows = useOS((s) => s.windows)
   const closeMenus = useOS((s) => s.closeMenus)
   const openAppByKey = useOS((s) => s.openAppByKey)
-  const dockHidden = useOS((s) => s.dockHidden)
-  const toggleDock = useOS((s) => s.toggleDock)
 
   const [selected, setSelected] = useState<string | null>(null)
   const [marquee, setMarquee] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
@@ -44,7 +42,6 @@ export default function Desktop() {
       { label: 'Refresh', icon: 'bi-arrow-counterclockwise', shortcut: 'F5', run: () => {} },
       { label: 'Open Terminal', icon: 'bi-terminal', run: () => openAppByKey('terminal') },
       { label: 'Personalize', icon: 'bi-palette', run: () => openAppByKey('settings') },
-      { label: dockHidden ? 'Show Dock' : 'Hide Dock', icon: dockHidden ? 'bi-caret-up-fill' : 'bi-caret-down-fill', run: () => toggleDock() },
     ])
   }
 
@@ -76,6 +73,9 @@ export default function Desktop() {
       }}
     >
       <Topbar />
+
+      {/* Minimized windows pill */}
+      <MinimizedPill />
 
       {/* Desktop icons */}
       <div className="absolute top-[calc(var(--taskbar-h,40px)+10px)] left-3 flex flex-col gap-1 z-[1]" onPointerDown={(e) => e.stopPropagation()}>
@@ -117,9 +117,7 @@ export default function Desktop() {
       )}
 
       {/* Dock */}
-      <div className={`absolute bottom-0 left-0 right-0 z-20 pointer-events-none transition-transform duration-300 ${dockHidden ? 'translate-y-full' : ''}`}>
-        <Dock />
-      </div>
+      <Dock />
 
       {/* Overlays */}
       <Toasts />

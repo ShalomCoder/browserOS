@@ -281,13 +281,16 @@ export const useOS = create<OsState>((set, get) => ({
     if (w.maximized) {
       const r = w.restore
       set((s) => ({
+        dockHidden: false,
+        topbarFloating: true,
         windows: s.windows.map((x) =>
           x.id === id ? { ...x, maximized: false, restore: null, x: r?.x ?? x.x, y: r?.y ?? x.y, width: r?.width ?? x.width, height: r?.height ?? x.height } : x
         ),
       }))
     } else {
       set((s) => ({
-        dockHidden: false,
+        dockHidden: true,
+        topbarFloating: false,
         windows: s.windows.map((x) => (x.id === id ? { ...x, maximized: true, restore: { x: x.x, y: x.y, width: x.width, height: x.height } } : x)),
       }))
     }

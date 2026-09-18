@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 :root {
+  --taskbar-h: 35px;
   --panel-bg: rgba(255, 255, 255, 0.3);
   --panel-fg: rgb(255, 255, 255);
   --accent: #00f;
@@ -24,7 +25,7 @@ body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', Inter, ui-sans-serif, system-ui, sans-serif;
   background: var(--main-bg, #000);
   color: var(--panel-fg, #fff);
 }
@@ -70,12 +71,21 @@ main.os-shell {
   -webkit-backdrop-filter: blur(18px);
 }
 
+/* ---------- Dropdown menus (power / notifications) ---------- */
+.os-menu-panel {
+  background-color: var(--panel-bg);
+  border-radius: 1.3rem;
+  box-shadow: 0px 0px 15px #1113;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* ---------- Window ---------- */
 .os-window {
   background-color: var(--window-bg);
   color: var(--window-fg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: 1.3rem;
   box-shadow: 0 0 5px #1113, 0 18px 48px rgba(0, 0, 0, 0.22);
 }
@@ -220,19 +230,24 @@ div.toggle-inner {
 
 /* ---------- Taskbar / top bar ---------- */
 .os-taskbar {
-  height: var(--taskbar-h, 40px);
+  height: var(--taskbar-h, 35px);
   background: var(--panel-bg);
   color: var(--panel-fg);
-  backdrop-filter: var(--panel-backdrop, blur(10px));
-  -webkit-backdrop-filter: var(--panel-backdrop, blur(10px));
-  border-bottom: 1px solid var(--dock-icon-color, #fff9);
-  z-index: 30;
+  backdrop-filter: var(--panel-backdrop, blur(14px));
+  -webkit-backdrop-filter: var(--panel-backdrop, blur(14px));
+  z-index: 99999;
+  cursor: default;
+  user-select: none;
 }
 .os-taskbar button:hover {
   background: var(--surface-hover);
 }
 
 /* ---------- Dock ---------- */
+.os-dock-wrap {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 .os-dock {
   background: var(--panel-bg);
   color: var(--panel-fg);

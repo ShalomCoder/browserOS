@@ -112,41 +112,40 @@ export default function Window({ winId, minWidth, minHeight }: { winId: number; 
 
   return (
     <div
-      className={`os-window os-window-open absolute flex flex-col overflow-hidden ${win.maximized ? 'inset-0' : ''} ${active ? '' : 'brightness-[0.98] saturate-[0.98]'} ${drag ? 'os-window-resizing' : ''}`}
+      className={`os-window os-window-open absolute flex flex-col overflow-hidden p-[10px] rounded-[1.3rem] ${win.maximized ? 'inset-0 rounded-none m-0' : ''} ${active ? '' : 'brightness-[0.98] saturate-[0.98]'} ${drag ? 'os-window-resizing' : ''}`}
       style={style}
       onPointerDown={() => focusWindow(win.id)}
     >
       <div
-        className="os-window-titlebar relative h-10 shrink-0 flex items-center gap-2 px-3 select-none"
+        className="os-window-titlebar relative h-[35px] shrink-0 flex items-center pr-1 pl-3 select-none cursor-move rounded-full"
         onPointerDown={(e) => {
           e.stopPropagation()
           begin('move')(e)
         }}
         onDoubleClick={() => toggleMaximize(win.id)}
       >
-        <i className={`${win.icon || 'bi-app-indicator'} text-sm opacity-80`} />
         <p className="flex-1 text-sm font-semibold truncate">{win.title || win.name}</p>
-        <div className="flex items-center gap-1">
+        <div className="ml-auto flex items-center">
           <button
             onClick={() => minimizeWindow(win.id)}
-            className="w-8 h-8 rounded-lg hover:bg-[var(--surface-active)] transition-colors"
-            title="Minimize"
+            className="w-7 h-7 rounded-full hover:bg-[var(--panel-bg)] active:bg-[var(--surface-active)] mr-2 transition-colors"
+            title="Minimize this Window"
           >
-            <i className="bi-dash text-base" />
+            <i className="bi-dash text-sm" />
           </button>
           <button
             onClick={() => toggleMaximize(win.id)}
-            className="w-8 h-8 rounded-lg hover:bg-[var(--surface-active)] transition-colors"
+            className="w-7 h-7 rounded-full hover:bg-[var(--panel-bg)] active:bg-[var(--surface-active)] mr-2 transition-colors"
             title={win.maximized ? 'Restore down' : 'Maximize'}
           >
-            <i className={`bi-${win.maximized ? 'arrows-angle-contract' : 'arrows-angle-expand'} text-sm`} />
+            <i className={win.maximized ? 'bi-arrows-angle-contract text-sm' : 'bi-fullscreen text-sm'} />
           </button>
           <button
             onClick={() => closeWindow(win.id)}
-            className="w-8 h-8 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-            title="Close"
+            className="w-7 h-7 rounded-full hover:bg-red-500 hover:text-white transition-colors"
+            title="Close this Window"
           >
-            <i className="bi-x-lg text-sm" />
+            <i className="bi-x text-lg" />
           </button>
         </div>
       </div>
